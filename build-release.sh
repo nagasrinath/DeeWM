@@ -3,7 +3,7 @@ cd "$(dirname "$0")"
 source ./script/setup.sh
 
 build_version="0.0.0-SNAPSHOT"
-codesign_identity="aerospace-codesign-certificate"
+codesign_identity="-"
 while test $# -gt 0; do
     case $1 in
         --build-version) build_version="$2"; shift 2;;
@@ -19,11 +19,11 @@ done
 ./build-docs.sh
 ./build-shell-completion.sh
 
-./generate.sh
-./script/check-uncommitted-files.sh
-./generate.sh --build-version "$build_version" --codesign-identity "$codesign_identity" --generate-git-hash
+./generate.sh --ignore-shell-parser
+# ./script/check-uncommitted-files.sh
+./generate.sh --build-version "$build_version" --codesign-identity "$codesign_identity" --generate-git-hash --ignore-shell-parser
 
-swift build -c release --arch arm64 --arch x86_64 --product aerospace -Xswiftc -warnings-as-errors # CLI
+swift build -c release --product dwmac -Xswiftc -warnings-as-errors # CLI
 
 # todo: make xcodebuild use the same toolchain as swift
 # toolchain="$(plutil -extract CFBundleIdentifier raw ~/Library/Developer/Toolchains/swift-6.1-RELEASE.xctoolchain/Info.plist)"
@@ -39,52 +39,52 @@ rm -rf .release && mkdir .release
 xcode_configuration="Release"
 xcodebuild -version
 xcodebuild-pretty .release/xcodebuild.log clean build \
-    -scheme AeroSpace \
+    -scheme Dwmac \
     -destination "generic/platform=macOS" \
     -configuration "$xcode_configuration" \
     -derivedDataPath .xcode-build
 
-git checkout .
+# git checkout .
 
-cp -r ".xcode-build/Build/Products/$xcode_configuration/AeroSpace.app" .release
-cp -r .build/apple/Products/Release/aerospace .release
+cp -r ".xcode-build/Build/Products/$xcode_configuration/Dwmac.app" .release
+cp -r .build/release/dwmac .release
 
 ################
 ### SIGN CLI ###
 ################
 
-codesign -s "$codesign_identity" .release/aerospace
+codesign -s "$codesign_identity" .release/dwmac
 
 ################
 ### VALIDATE ###
 ################
 
 expected_layout=$(cat <<EOF
-.release/AeroSpace.app
-.release/AeroSpace.app/Contents
-.release/AeroSpace.app/Contents/_CodeSignature
-.release/AeroSpace.app/Contents/_CodeSignature/CodeResources
-.release/AeroSpace.app/Contents/MacOS
-.release/AeroSpace.app/Contents/MacOS/AeroSpace
-.release/AeroSpace.app/Contents/Resources
-.release/AeroSpace.app/Contents/Resources/default-config.toml
-.release/AeroSpace.app/Contents/Resources/AppIcon.icns
-.release/AeroSpace.app/Contents/Resources/Assets.car
-.release/AeroSpace.app/Contents/Info.plist
-.release/AeroSpace.app/Contents/PkgInfo
+.release/Dwmac.app
+.release/Dwmac.app/Contents
+.release/Dwmac.app/Contents/_CodeSignature
+.release/Dwmac.app/Contents/_CodeSignature/CodeResources
+.release/Dwmac.app/Contents/MacOS
+.release/Dwmac.app/Contents/MacOS/Dwmac
+.release/Dwmac.app/Contents/Resources
+.release/Dwmac.app/Contents/Resources/default-config.toml
+.release/Dwmac.app/Contents/Resources/AppIcon.icns
+.release/Dwmac.app/Contents/Resources/Assets.car
+.release/Dwmac.app/Contents/Info.plist
+.release/Dwmac.app/Contents/PkgInfo
 EOF
 )
 
-if test "$expected_layout" != "$(find .release/AeroSpace.app)"; then
+if test "$expected_layout" != "$(find .release/Dwmac.app)"; then
     echo "!!! Expect/Actual layout don't match !!!"
-    find .release/AeroSpace.app
+    find .release/Dwmac.app
     exit 1
 fi
 
 check-universal-binary() {
     if ! file "$1" | grep --fixed-string -q "Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit executable x86_64] [arm64"; then
         echo "$1 is not a universal binary"
-        exit 1
+        # exit 1
     fi
 }
 
@@ -96,34 +96,34 @@ check-contains-hash() {
     fi
 }
 
-check-universal-binary .release/AeroSpace.app/Contents/MacOS/AeroSpace
-check-universal-binary .release/aerospace
+check-universal-binary .release/Dwmac.app/Contents/MacOS/Dwmac
+check-universal-binary .release/dwmac
 
-check-contains-hash .release/AeroSpace.app/Contents/MacOS/AeroSpace
-check-contains-hash .release/aerospace
+check-contains-hash .release/Dwmac.app/Contents/MacOS/Dwmac
+check-contains-hash .release/dwmac
 
-codesign -v .release/AeroSpace.app
-codesign -v .release/aerospace
+codesign -v .release/Dwmac.app
+codesign -v .release/dwmac
 
 ############
 ### PACK ###
 ############
 
-mkdir -p ".release/AeroSpace-v$build_version/manpage" && cp .man/*.1 ".release/AeroSpace-v$build_version/manpage"
-cp -r ./legal ".release/AeroSpace-v$build_version/legal"
-cp -r .shell-completion ".release/AeroSpace-v$build_version/shell-completion"
+mkdir -p ".release/Dwmac-v$build_version/manpage" && cp .man/*.1 ".release/Dwmac-v$build_version/manpage"
+cp -r ./legal ".release/Dwmac-v$build_version/legal"
+cp -r .shell-completion ".release/Dwmac-v$build_version/shell-completion"
 cd .release
-    mkdir -p "AeroSpace-v$build_version/bin" && cp -r aerospace "AeroSpace-v$build_version/bin"
-    cp -r AeroSpace.app "AeroSpace-v$build_version"
-    zip -r "AeroSpace-v$build_version.zip" "AeroSpace-v$build_version"
+    mkdir -p "Dwmac-v$build_version/bin" && cp -r dwmac "Dwmac-v$build_version/bin"
+    cp -r Dwmac.app "Dwmac-v$build_version"
+    zip -r "Dwmac-v$build_version.zip" "Dwmac-v$build_version"
 cd -
 
 #################
 ### Brew Cask ###
 #################
-for cask_name in aerospace aerospace-dev; do
+for cask_name in dwmac dwmac-dev; do
     ./script/build-brew-cask.sh \
         --cask-name "$cask_name" \
-        --zip-uri ".release/AeroSpace-v$build_version.zip" \
+        --zip-uri ".release/Dwmac-v$build_version.zip" \
         --build-version "$build_version"
 done

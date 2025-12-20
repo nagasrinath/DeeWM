@@ -47,7 +47,8 @@ struct FocusCommand: Command {
                     case .dfsPrev: currentIndex - 1
                 }
                 if !(0 ..< windows.count).contains(targetIndex) {
-                    switch args.boundariesAction {
+                    let action = args.rawBoundariesAction ?? .wrapAroundTheWorkspace
+                    switch action {
                         case .stop: return true
                         case .fail: return false
                         case .wrapAroundTheWorkspace: targetIndex = (targetIndex + windows.count) % windows.count

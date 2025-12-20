@@ -17,14 +17,14 @@ fi
 PATH="$PATH:$(brew --prefix)/bin"
 export PATH
 
-brew list aerospace-dev-user/aerospace-dev-tap/aerospace-dev > /dev/null 2>&1 && brew uninstall aerospace-dev-user/aerospace-dev-tap/aerospace-dev # Compatibility. Drop after a while
-brew list nikitabobko/local-tap/aerospace-dev > /dev/null 2>&1 && brew uninstall nikitabobko/local-tap/aerospace-dev
-brew list aerospace > /dev/null 2>&1 && brew uninstall aerospace
-which brew-install-path > /dev/null 2>&1 || brew install nikitabobko/tap/brew-install-path
+brew list dwmac-dev-user/dwmac-dev-tap/dwmac-dev > /dev/null 2>&1 && brew uninstall dwmac-dev-user/dwmac-dev-tap/dwmac-dev # Compatibility. Drop after a while
+brew list hillyu/local-tap/dwmac-dev > /dev/null 2>&1 && brew uninstall hillyu/local-tap/dwmac-dev
+brew list dwmac > /dev/null 2>&1 && brew uninstall dwmac
+which brew-install-path > /dev/null 2>&1 || brew install hillyu/tap/brew-install-path
 
 # Override HOMEBREW_CACHE. Otherwise, homebrew refuses to "redownload" the snapshot file
 # Maybe there is a better way, I don't know
-rm -rf /tmp/aerospace-from-sources-brew-cache
-HOMEBREW_CACHE=/tmp/aerospace-from-sources-brew-cache brew install-path ./.release/aerospace-dev.rb
+rm -rf /tmp/dwmac-from-sources-brew-cache
+HOMEBREW_CACHE=/tmp/dwmac-from-sources-brew-cache brew install-path ./.release/dwmac-dev.rb
 
-rm -rf "$(brew --prefix)/Library/Taps/aerospace-dev-user" # Compatibility. Drop after a while
+rm -rf "$(brew --prefix)/Library/Taps/dwmac-dev-user" # Compatibility. Drop after a while

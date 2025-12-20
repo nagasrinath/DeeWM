@@ -12,7 +12,7 @@
     "Aero.AxIgnored" : "AXFrame, AXSize, AXFocused, AXHelp, AXPosition, AXRoleDescription, AXEdited"
   },
   "AXDefaultButton" : null,
-  "AXDocument" : "file:///Users/bobko/The%20past,%20present,%20and%20future%20of%20local-first%20-%20Martin%20Kleppmann%20(Local-First%20Conf)%20%5BNMq0vncHJvU%5D.mkv",
+  "AXDocument" : "file:///Users/hillyu/The%20past,%20present,%20and%20future%20of%20local-first%20-%20Martin%20Kleppmann%20(Local-First%20Conf)%20%5BNMq0vncHJvU%5D.mkv",
   "AXFocused" : 1,
   "AXFrame" : "<AXValue 0x6000002bbe80> {value = x:222.000000 y:132.000000 w:1519.000000 h:919.000000 type = kAXValueCGRectType}",
   "AXFullScreen" : 0,

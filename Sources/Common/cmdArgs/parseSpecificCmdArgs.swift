@@ -10,7 +10,7 @@ public func parseSpecificCmdArgs<T: CmdArgs>(_ raw: T, _ args: StrArrSlice) -> P
         let arg = args[index]
         if arg == "-h" || arg == "--help" {
             return .help(T.info.help)
-        } else if arg.starts(with: "-") && !isResizeNegativeUnitsArg(raw, arg: arg) {
+        } else if arg.starts(with: "-") && !isNegativeNumberArg(raw, arg: arg) {
             if let optionParser: any SubArgParserProtocol<T> = T.parser.flags[arg] {
                 index += 1
                 if !options.insert(arg).inserted {
@@ -122,7 +122,7 @@ extension ArgParserProtocol {
 }
 
 // Hack to preserve backwards compatibility
-private func isResizeNegativeUnitsArg(_ raw: any CmdArgs, arg: String) -> Bool {
+private func isNegativeNumberArg(_ raw: any CmdArgs, arg: String) -> Bool {
     var iter = arg.makeIterator()
-    return raw is ResizeCmdArgs && iter.next() == "-" && iter.next()?.isNumber == true
+    return (raw is ResizeCmdArgs || raw is MfactCmdArgs) && iter.next() == "-" && iter.next()?.isNumber == true
 }

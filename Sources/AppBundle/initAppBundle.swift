@@ -15,7 +15,7 @@ import Foundation
         if try await !reloadConfig() {
             var out = ""
             check(
-                try await !reloadConfig(forceConfigUrl: defaultConfigUrl, stdout: &out),
+                try await reloadConfig(forceConfigUrl: defaultConfigUrl, stdout: &out),
                 """
                 Can't load default config. Your installation is probably corrupted.
                 Please don't change default-config.toml
@@ -32,20 +32,8 @@ import Foundation
         _ = Workspace.all.first?.focusWorkspace()
         try await runRefreshSessionBlocking(.startup, layoutWorkspaces: false)
         try await runLightSession(.startup, .checkServerIsEnabledOrDie) {
-            smartLayoutAtStartup()
             _ = try await config.afterStartupCommand.runCmdSeq(.defaultEnv, .emptyStdin)
         }
-    }
-}
-
-@MainActor
-private func smartLayoutAtStartup() {
-    let workspace = focus.workspace
-    let root = workspace.rootTilingContainer
-    if root.children.count <= 3 {
-        root.layout = .tiles
-    } else {
-        root.layout = .accordion
     }
 }
 
@@ -59,13 +47,13 @@ struct ServerArgs: Sendable {
 }
 
 private let serverHelp = """
-    USAGE: \(CommandLine.arguments.first ?? "AeroSpace.app/Contents/MacOS/AeroSpace") [<options>]
+    USAGE: \(CommandLine.arguments.first ?? "Dwmac.app/Contents/MacOS/Dwmac") [<options>]
 
     OPTIONS:
       -h, --help              Print help
-      -v, --version           Print AeroSpace.app version
-      --config-path <path>    Config path. It will take priority over ~/.aerospace.toml
-                              and ${XDG_CONFIG_HOME}/aerospace/aerospace.toml
+      -v, --version           Print Dwmac.app version
+      --config-path <path>    Config path. It will take priority over ~/.dwmac.toml
+                              and ${XDG_CONFIG_HOME}/dwmac/dwmac.toml
       --read-only             Disable window management.
                               Useful if you want to use only debug-windows or other query commands.
     """
@@ -84,7 +72,7 @@ private func initServerArgs() {
         index += 1
         switch current {
             case "--version", "-v":
-                print("\(aeroSpaceAppVersion) \(gitHash)")
+                print("\(dwmacAppVersion) \(gitHash)")
                 exit(0)
             case "--config-path":
                 if let arg = args.getOrNil(atIndex: index) {

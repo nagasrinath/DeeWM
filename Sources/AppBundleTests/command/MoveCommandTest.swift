@@ -13,15 +13,15 @@ final class MoveCommandTest: XCTestCase {
         }
 
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .right)).run(.defaultEnv, .emptyStdin)
-        assertEquals(root.layoutDescription, .h_tiles([.window(2), .window(1)]))
+        assertEquals(root.layoutDescription, .h_master_stack([.window(2), .window(1)]))
     }
 
     func testMoveInto_findTopMostContainerWithRightOrientation() async throws {
         let root = Workspace.get(byName: name).rootTilingContainer.apply {
             TestWindow.new(id: 0, parent: $0)
             assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)
-            TilingContainer.newHTiles(parent: $0, adaptiveWeight: 1).apply {
-                TilingContainer.newHTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newHMasterStack(parent: $0, adaptiveWeight: 1).apply {
+                TilingContainer.newHMasterStack(parent: $0, adaptiveWeight: 1).apply {
                     TestWindow.new(id: 2, parent: $0)
                 }
             }
@@ -30,11 +30,11 @@ final class MoveCommandTest: XCTestCase {
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .right)).run(.defaultEnv, .emptyStdin)
         assertEquals(
             root.layoutDescription,
-            .h_tiles([
+            .h_master_stack([
                 .window(0),
-                .h_tiles([
+                .h_master_stack([
                     .window(1),
-                    .h_tiles([
+                    .h_master_stack([
                         .window(2),
                     ]),
                 ]),
@@ -47,8 +47,8 @@ final class MoveCommandTest: XCTestCase {
         let root = Workspace.get(byName: name).rootTilingContainer.apply {
             TestWindow.new(id: 0, parent: $0)
             assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
-                TilingContainer.newHTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
+                TilingContainer.newHMasterStack(parent: $0, adaptiveWeight: 1).apply {
                     TestWindow.new(id: 2, parent: $0)
                     window3 = TestWindow.new(id: 3, parent: $0)
                 }
@@ -60,10 +60,10 @@ final class MoveCommandTest: XCTestCase {
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .right)).run(.defaultEnv, .emptyStdin)
         assertEquals(
             root.layoutDescription,
-            .h_tiles([
+            .h_master_stack([
                 .window(0),
-                .v_tiles([
-                    .h_tiles([
+                .v_master_stack([
+                    .h_master_stack([
                         .window(1),
                         .window(2),
                         .window(3),
@@ -91,7 +91,7 @@ final class MoveCommandTest: XCTestCase {
         Workspace.get(byName: name).rootTilingContainer.apply {
             TestWindow.new(id: 0, parent: $0, adaptiveWeight: 1)
             window1 = TestWindow.new(id: 1, parent: $0, adaptiveWeight: 2)
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
                 window2 = TestWindow.new(id: 2, parent: $0, adaptiveWeight: 1)
             }
         }
@@ -116,9 +116,9 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .v_tiles([
+                .v_master_stack([
                     .window(2),
-                    .h_tiles([.window(1), .window(3)]),
+                    .h_master_stack([.window(1), .window(3)]),
                 ]),
             ]),
         )
@@ -137,7 +137,7 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .h_tiles([.window(1), .window(2), .window(3)]),
+                .h_master_stack([.window(1), .window(2), .window(3)]),
             ]),
         )
         assertEquals(result.exitCode, 0)
@@ -155,7 +155,7 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .h_tiles([.window(1), .window(2), .window(3)]),
+                .h_master_stack([.window(1), .window(2), .window(3)]),
             ]),
         )
         assertEquals(result.exitCode, 0)
@@ -173,7 +173,7 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .h_tiles([.window(2), .window(1), .window(3)]),
+                .h_master_stack([.window(2), .window(1), .window(3)]),
             ]),
         )
         assertEquals(result.exitCode, 0)
@@ -183,7 +183,7 @@ final class MoveCommandTest: XCTestCase {
         let workspace = Workspace.get(byName: name)
         workspace.rootTilingContainer.apply {
             TestWindow.new(id: 1, parent: $0)
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
                 assertEquals(TestWindow.new(id: 2, parent: $0).focusWindow(), true)
                 TestWindow.new(id: 3, parent: $0)
             }
@@ -193,7 +193,7 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .h_tiles([.window(1), .v_tiles([.window(3)]), .window(2)]),
+                .h_master_stack([.window(1), .v_master_stack([.window(3)]), .window(2)]),
             ]),
         )
         assertEquals(result.exitCode, 0)
@@ -211,7 +211,7 @@ final class MoveCommandTest: XCTestCase {
         assertEquals(
             workspace.layoutDescription,
             .workspace([
-                .h_tiles([.window(1), .window(2), .window(3)]),
+                .h_master_stack([.window(1), .window(2), .window(3)]),
             ]),
         )
         assertEquals(result.exitCode, 1)
@@ -220,7 +220,7 @@ final class MoveCommandTest: XCTestCase {
     func testMoveOut() async throws {
         let root = Workspace.get(byName: name).rootTilingContainer.apply {
             TestWindow.new(id: 1, parent: $0)
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
                 assertEquals(TestWindow.new(id: 2, parent: $0).focusWindow(), true)
                 TestWindow.new(id: 3, parent: $0)
                 TestWindow.new(id: 4, parent: $0)
@@ -230,10 +230,10 @@ final class MoveCommandTest: XCTestCase {
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .left)).run(.defaultEnv, .emptyStdin)
         assertEquals(
             root.layoutDescription,
-            .h_tiles([
+            .h_master_stack([
                 .window(1),
                 .window(2),
-                .v_tiles([
+                .v_master_stack([
                     .window(3),
                     .window(4),
                 ]),
@@ -252,7 +252,7 @@ final class MoveCommandTest: XCTestCase {
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .right)).run(.defaultEnv, .emptyStdin)
         assertEquals(
             workspace.rootTilingContainer.layoutDescription,
-            .h_tiles([
+            .h_master_stack([
                 .window(1),
                 .window(2),
             ]),
@@ -271,7 +271,7 @@ final class MoveCommandTest: XCTestCase {
         try await MoveCommand(args: MoveCmdArgs(rawArgs: [], .left)).run(.defaultEnv, .emptyStdin)
         assertEquals(
             workspace.rootTilingContainer.layoutDescription,
-            .h_tiles([
+            .h_master_stack([
                 .window(1),
                 .window(2),
             ]),
@@ -291,14 +291,10 @@ extension TreeNode {
             case .macosPopupWindowsContainer: .macosPopupWindowsContainer
             case .tilingContainer(let container):
                 switch container.layout {
-                    case .tiles:
+                    case .masterStack:
                         container.orientation == .h
-                            ? .h_tiles(container.children.map(\.layoutDescription))
-                            : .v_tiles(container.children.map(\.layoutDescription))
-                    case .accordion:
-                        container.orientation == .h
-                            ? .h_accordion(container.children.map(\.layoutDescription))
-                            : .v_accordion(container.children.map(\.layoutDescription))
+                            ? .h_master_stack(container.children.map(\.layoutDescription))
+                            : .v_master_stack(container.children.map(\.layoutDescription))
                 }
         }
     }
@@ -306,10 +302,8 @@ extension TreeNode {
 
 enum LayoutDescription: Equatable {
     case workspace([LayoutDescription])
-    case h_tiles([LayoutDescription])
-    case v_tiles([LayoutDescription])
-    case h_accordion([LayoutDescription])
-    case v_accordion([LayoutDescription])
+    case h_master_stack([LayoutDescription])
+    case v_master_stack([LayoutDescription])
     case window(UInt32)
     case macosPopupWindowsContainer
     case macosMinimized

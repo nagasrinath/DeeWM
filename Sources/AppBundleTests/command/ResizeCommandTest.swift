@@ -15,6 +15,9 @@ final class ResizeCommandTest: XCTestCase {
         testParseCommandSucc("resize height 10", ResizeCmdArgs(rawArgs: [], dimension: .height, units: .set(10)))
         testParseCommandSucc("resize width 10", ResizeCmdArgs(rawArgs: [], dimension: .width, units: .set(10)))
 
+        testParseCommandSucc("resize smart +0.5", ResizeCmdArgs(rawArgs: [], dimension: .smart, units: .add(0.5)))
+        testParseCommandSucc("resize smart -0.5", ResizeCmdArgs(rawArgs: [], dimension: .smart, units: .subtract(0.5)))
+
         testParseCommandFail("resize s 10", msg: """
             ERROR: Can't parse 's'.
                    Possible values: (width|height|smart|smart-opposite)

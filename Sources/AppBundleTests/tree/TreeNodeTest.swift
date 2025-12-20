@@ -24,6 +24,8 @@ final class TreeNodeTest: XCTestCase {
         window!.unbindFromParent()
         XCTAssertTrue(workspace.isEffectivelyEmpty)
 
+        window = nil
+
         // Don't save to local variable
         TestWindow.new(id: 2, parent: workspace.rootTilingContainer)
         XCTAssertTrue(!workspace.isEffectivelyEmpty)
@@ -42,6 +44,7 @@ final class TreeNodeTest: XCTestCase {
 
         config.enableNormalizationFlattenContainers = true
         test()
+        root = nil
     }
 
     func testNormalizeContainers_singleWindowChild() {
@@ -49,13 +52,13 @@ final class TreeNodeTest: XCTestCase {
         let workspace = Workspace.get(byName: name)
         workspace.rootTilingContainer.apply {
             TestWindow.new(id: 0, parent: $0)
-            TilingContainer.newHTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newHMasterStack(parent: $0, adaptiveWeight: 1).apply {
                 TestWindow.new(id: 1, parent: $0)
             }
         }
         workspace.normalizeContainers()
         assertEquals(
-            .h_tiles([.window(0), .window(1)]),
+            .h_master_stack([.window(0), .window(1)]),
             workspace.rootTilingContainer.layoutDescription,
         )
     }
@@ -63,8 +66,8 @@ final class TreeNodeTest: XCTestCase {
     func testNormalizeContainers_removeEffectivelyEmpty() {
         let workspace = Workspace.get(byName: name)
         workspace.rootTilingContainer.apply {
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
-                _ = TilingContainer.newHTiles(parent: $0, adaptiveWeight: 1)
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
+                _ = TilingContainer.newHMasterStack(parent: $0, adaptiveWeight: 1)
             }
         }
         assertEquals(workspace.rootTilingContainer.children.count, 1)
@@ -75,7 +78,7 @@ final class TreeNodeTest: XCTestCase {
     func testNormalizeContainers_flattenContainers() {
         let workspace = Workspace.get(byName: name) // Don't cache root node
         workspace.rootTilingContainer.apply {
-            TilingContainer.newVTiles(parent: $0, adaptiveWeight: 1).apply {
+            TilingContainer.newVMasterStack(parent: $0, adaptiveWeight: 1).apply {
                 TestWindow.new(id: 1, parent: $0, adaptiveWeight: 1)
             }
         }

@@ -20,10 +20,10 @@ func startUnixSocketServer() {
 func toggleReleaseServerIfDebug(_ state: EnableCmdArgs.State) async {
     if serverArgs.isReadOnly { return }
     if !isDebug { return }
-    let socketFile = "/tmp/\(stableAeroSpaceAppId)-\(unixUserName).sock"
+    let socketFile = "/tmp/\(stableDwmacAppId)-\(unixUserName).sock"
     let connection = NWConnection(to: NWEndpoint.unix(path: socketFile), using: .tcp)
     defer { connection.cancel() }
-    if await connection.startBlocking() != nil { // Can't connect, AeroSpace.app is not running
+    if await connection.startBlocking() != nil { // Can't connect, Dwmac.app is not running
         return
     }
 
@@ -32,7 +32,7 @@ func toggleReleaseServerIfDebug(_ state: EnableCmdArgs.State) async {
     _ = await connection.read()
 }
 
-private let serverVersionAndHash = "\(aeroSpaceAppVersion) \(gitHash)"
+private let serverVersionAndHash = "\(dwmacAppVersion) \(gitHash)"
 
 private func newConnection(_ connection: NWConnection) async { // todo add exit codes
     func answerToClient(exitCode: Int32, stdout: String = "", stderr: String = "") async {
@@ -64,8 +64,8 @@ private func newConnection(_ connection: NWConnection) async { // todo add exit 
         guard let token: RunSessionGuard = await .isServerEnabled(orIsEnableCommand: command) else {
             await answerToClient(
                 exitCode: 1,
-                stderr: "\(aeroSpaceAppName) server is disabled and doesn't accept commands. " +
-                    "You can use 'aerospace enable on' to enable the server",
+                stderr: "\(dwmacAppName) server is disabled and doesn't accept commands. " +
+                    "You can use 'dwmac enable on' to enable the server",
             )
             continue
         }
@@ -104,7 +104,7 @@ private func newConnection(_ connection: NWConnection) async { // todo add exit 
                     serverVersionAndHash: serverVersionAndHash,
                 )
             if request.windowId == nil || request.workspace == nil {
-                answer.stderr += "\n\nAeroSpace client has sent incomplete JSON request. 'windowId' or/and 'workspace' fields are missing. Please forward your AEROSPACE_WINDOW_ID and AEROSPACE_WORKSPACE environment variables to these JSON fields. If the appropriate environment variables are empty, pass explict 'null' in the JSON."
+                answer.stderr += "\n\nDwmac client has sent incomplete JSON request. 'windowId' or/and 'workspace' fields are missing. Please forward your DWMAC_WINDOW_ID and DWMAC_WORKSPACE environment variables to these JSON fields. If the appropriate environment variables are empty, pass explict 'null' in the JSON."
             }
             await answerToClient(answer)
             continue

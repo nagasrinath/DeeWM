@@ -4,8 +4,7 @@ extension CmdArgs {
     func toCommand() -> any Command {
         let command: any Command
         switch Self.info.kind {
-            case .balanceSizes:
-                command = BalanceSizesCommand(args: self as! BalanceSizesCmdArgs)
+
             case .close:
                 command = CloseCommand(args: self as! CloseCmdArgs)
             case .closeAllWindowsButCurrent:
@@ -18,8 +17,7 @@ extension CmdArgs {
                 command = EnableCommand(args: self as! EnableCmdArgs)
             case .execAndForget:
                 die("exec-and-forget is parsed separately")
-            case .flattenWorkspaceTree:
-                command = FlattenWorkspaceTreeCommand(args: self as! FlattenWorkspaceTreeCmdArgs)
+
             case .focus:
                 command = FocusCommand(args: self as! FocusCmdArgs)
             case .focusBackAndForth:
@@ -28,8 +26,7 @@ extension CmdArgs {
                 command = FocusMonitorCommand(args: self as! FocusMonitorCmdArgs)
             case .fullscreen:
                 command = FullscreenCommand(args: self as! FullscreenCmdArgs)
-            case .joinWith:
-                command = JoinWithCommand(args: self as! JoinWithCmdArgs)
+
             case .layout:
                 command = LayoutCommand(args: self as! LayoutCmdArgs)
             case .listApps:
@@ -48,12 +45,16 @@ extension CmdArgs {
                 command = MacosNativeFullscreenCommand(args: self as! MacosNativeFullscreenCmdArgs)
             case .macosNativeMinimize:
                 command = MacosNativeMinimizeCommand(args: self as! MacosNativeMinimizeCmdArgs)
+            case .mfact:
+                command = MfactCommand(args: self as! MfactCmdArgs)
             case .mode:
                 command = ModeCommand(args: self as! ModeCmdArgs)
             case .move:
                 command = MoveCommand(args: self as! MoveCmdArgs)
             case .moveMouse:
                 command = MoveMouseCommand(args: self as! MoveMouseCmdArgs)
+            case .moveNodeToMaster:
+                command = MoveNodeToMasterCommand(args: self as! MoveNodeToMasterCmdArgs)
             case .moveNodeToMonitor:
                 command = MoveNodeToMonitorCommand(args: self as! MoveNodeToMonitorCmdArgs)
             case .moveNodeToWorkspace:

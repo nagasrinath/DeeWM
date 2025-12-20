@@ -5,8 +5,8 @@ import SwiftUI
 @MainActor
 public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it be converted to "SwiftUI struct"?
     MenuBarExtra {
-        let shortIdentification = "\(aeroSpaceAppName) v\(aeroSpaceAppVersion) \(gitShortHash)"
-        let identification      = "\(aeroSpaceAppName) v\(aeroSpaceAppVersion) \(gitHash)"
+        let shortIdentification = "\(dwmacAppName) v\(dwmacAppVersion) \(gitShortHash)"
+        let identification      = "\(dwmacAppName) v\(dwmacAppVersion) \(gitHash)"
         Text(shortIdentification)
         Button("Copy to clipboard") { identification.copyToClipboard() }
             .keyboardShortcut("C", modifiers: .command)
@@ -27,10 +27,10 @@ public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it 
             Divider()
         }
         Button {
-            NSWorkspace.shared.open(URL(string: "https://github.com/sponsors/nikitabobko").orDie())
+            NSWorkspace.shared.open(URL(string: "https://github.com/sponsors/hillyu").orDie())
             viewModel.sponsorshipMessage = sponsorshipPrompts.randomElement().orDie()
         } label: {
-            Text("Sponsor AeroSpace on GitHub")
+            Text("Sponsor Dwmac on GitHub")
             Text(viewModel.sponsorshipMessage)
         }
         Divider()
@@ -45,7 +45,7 @@ public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it 
         getExperimentalUISettingsMenu(viewModel: viewModel)
         openConfigButton()
         reloadConfigButton()
-        Button("Quit \(aeroSpaceAppName)") {
+        Button("Quit \(dwmacAppName)") {
             Task {
                 defer { terminateApp() }
                 try await terminationHandler.beforeTermination()

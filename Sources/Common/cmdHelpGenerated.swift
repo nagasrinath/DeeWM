@@ -1,9 +1,6 @@
-// FILE IS GENERATED FROM docs/aerospace-*.adoc files
+// FILE IS GENERATED FROM docs/dwmac-*.adoc files
 // TO REGENERATE THE FILE RUN generate.sh
 
-let balance_sizes_help_generated = """
-    USAGE: balance-sizes [-h|--help] [--workspace <workspace>]
-    """
 let close_all_windows_but_current_help_generated = """
     USAGE: close-all-windows-but-current [-h|--help] [--quit-if-last-window]
     """
@@ -26,9 +23,6 @@ let enable_help_generated = """
     """
 let exec_and_forget_help_generated = """
     USAGE: exec-and-forget <bash-script>
-    """
-let flatten_workspace_tree_help_generated = """
-    USAGE: flatten-workspace-tree [-h|--help] [--workspace <workspace>]
     """
 let focus_back_and_forth_help_generated = """
     USAGE: focus-back-and-forth [-h|--help]
@@ -53,12 +47,9 @@ let fullscreen_help_generated = """
        OR: fullscreen [-h|--help] on  [--window-id <window-id>] [--no-outer-gaps] [--fail-if-noop]
        OR: fullscreen [-h|--help] off [--window-id <window-id>] [--fail-if-noop]
     """
-let join_with_help_generated = """
-    USAGE: join-with [-h|--help] [--window-id <window-id>] (left|down|up|right)
-    """
 let layout_help_generated = """
     USAGE: layout [-h|--help] [--window-id <window-id>]
-                  (h_tiles|v_tiles|h_accordion|v_accordion|tiles|accordion|horizontal|vertical|tiling|floating)...
+                  (h_master-stack|v_master-stack|master-stack|horizontal|vertical|tiling|floating)...
     """
 let list_apps_help_generated = """
     USAGE: list-apps [-h|--help] [--macos-native-hidden [no]] [--format <output-format>] [--count] [--json]
@@ -93,11 +84,17 @@ let macos_native_fullscreen_help_generated = """
 let macos_native_minimize_help_generated = """
     USAGE: macos-native-minimize [-h|--help] [--window-id <window-id>]
     """
+let mfact_help_generated = """
+    USAGE: mfact [-h|--help] [+|-]<number>
+    """
 let mode_help_generated = """
     USAGE: mode [-h|--help] <binding-mode>
     """
 let move_mouse_help_generated = """
     USAGE: move-mouse [-h|--help] [--fail-if-noop] <mouse-position>
+    """
+let move_node_to_master_help_generated = """
+    USAGE: move-node-to-master [-h|--help]
     """
 let move_node_to_monitor_help_generated = """
     USAGE: move-node-to-monitor [-h|--help] [--window-id <window-id>] [--focus-follows-window]

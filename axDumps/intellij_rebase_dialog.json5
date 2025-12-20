@@ -72,14 +72,14 @@
     "AXTitle" : "IntelliJ IDEA",
     "AXWindows" : [
       "AXUIElement(AxWindowId=14799, title=\"Rebase\", role=\"AXWindow\", subrole=\"AXStandardWindow\")",
-      "AXUIElement(AxWindowId=13585, title=\"jvm-gradle-sandbox [~/a/jvm-gradle-sandbox] – /Users/bobko/a/jvm-gradle-sandbox/app/src/test/kotlin/jvm/gradle/sandbox/AppTest.kt\", role=\"AXWindow\", subrole=\"AXDialog\")",
-      "AXUIElement(AxWindowId=13583, title=\"jvm-sandbox [~/a/jvm-sandbox] – /Users/bobko/a/jvm-sandbox/src/main/kotlin/main.kt\", role=\"AXWindow\", subrole=\"AXDialog\")"
+      "AXUIElement(AxWindowId=13585, title=\"jvm-gradle-sandbox [~/a/jvm-gradle-sandbox] – /Users/hillyu/a/jvm-gradle-sandbox/app/src/test/kotlin/jvm/gradle/sandbox/AppTest.kt\", role=\"AXWindow\", subrole=\"AXDialog\")",
+      "AXUIElement(AxWindowId=13583, title=\"jvm-sandbox [~/a/jvm-sandbox] – /Users/hillyu/a/jvm-sandbox/src/main/kotlin/main.kt\", role=\"AXWindow\", subrole=\"AXDialog\")"
     ],
     "Aero.AxIgnored" : "AXChildren, AXChildrenInNavigationOrder, AXEnhancedUserInterface, AXPreferredLanguage, AXRoleDescription, AXHidden"
   },
   "Aero.App.appBundleId" : "com.jetbrains.intellij",
   "Aero.App.nsApp.activationPolicy" : "regular",
-  "Aero.App.nsApp.execPath" : "file:///Users/bobko/Applications/ij-241.app/Contents/MacOS/idea",
+  "Aero.App.nsApp.execPath" : "file:///Users/hillyu/Applications/ij-241.app/Contents/MacOS/idea",
   "Aero.App.version" : "IU-241.17011.79",
   "Aero.App.versionShort" : "2024.1.2",
   "Aero.AxIgnored" : "AXChildrenInNavigationOrder, AXChildren, AXRoleDescription",

@@ -33,9 +33,9 @@ public struct ResizeCmdArgs: CmdArgs {
     }
 
     public enum Units: Equatable, Sendable {
-        case set(UInt)
-        case add(UInt)
-        case subtract(UInt)
+        case set(Double)
+        case add(Double)
+        case subtract(Double)
     }
 }
 
@@ -48,7 +48,7 @@ private func parseDimension(i: ArgParserInput) -> ParsedCliArgs<ResizeCmdArgs.Di
 }
 
 private func parseUnits(i: ArgParserInput) -> ParsedCliArgs<ResizeCmdArgs.Units> {
-    if let number = UInt(i.arg.removePrefix("+").removePrefix("-")) {
+    if let number = Double(i.arg.removePrefix("+").removePrefix("-")) {
         switch true {
             case i.arg.starts(with: "+"): .succ(.add(number), advanceBy: 1)
             case i.arg.starts(with: "-"): .succ(.subtract(number), advanceBy: 1)

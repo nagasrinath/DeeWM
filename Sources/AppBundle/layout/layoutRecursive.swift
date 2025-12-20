@@ -42,10 +42,8 @@ extension TreeNode {
                 lastAppliedLayoutPhysicalRect = physicalRect
                 lastAppliedLayoutVirtualRect = virtual
                 switch container.layout {
-                    case .tiles:
-                        try await container.layoutTiles(point, width: width, height: height, virtual: virtual, context)
-                    case .accordion:
-                        try await container.layoutAccordion(point, width: width, height: height, virtual: virtual, context)
+                    case .masterStack:
+                        try await container.layoutMasterStack(point, width: width, height: height, virtual: virtual, context)
                 }
             case .macosMinimizedWindowsContainer, .macosFullscreenWindowsContainer,
                  .macosPopupWindowsContainer, .macosHiddenAppsWindowsContainer:
@@ -97,71 +95,29 @@ extension Window {
 
 extension TilingContainer {
     @MainActor
-    fileprivate func layoutTiles(_ point: CGPoint, width: CGFloat, height: CGFloat, virtual: Rect, _ context: LayoutContext) async throws {
-        var point = point
-        var virtualPoint = virtual.topLeftCorner
-
-        guard let delta = ((orientation == .h ? width : height) - CGFloat(children.sumOfDouble { $0.getWeight(orientation) }))
-            .div(children.count) else { return }
-
-        let lastIndex = children.indices.last
-        for (i, child) in children.enumerated() {
-            child.setWeight(orientation, child.getWeight(orientation) + delta)
-            let rawGap = context.resolvedGaps.inner.get(orientation).toDouble()
-            // Gaps. Consider 4 cases:
-            // 1. Multiple children. Layout first child
-            // 2. Multiple children. Layout last child
-            // 3. Multiple children. Layout child in the middle
-            // 4. Single child   let rawGap = gaps.inner.get(orientation).toDouble()
-            let gap = rawGap - (i == 0 ? rawGap / 2 : 0) - (i == lastIndex ? rawGap / 2 : 0)
-            try await child.layoutRecursive(
-                i == 0 ? point : point.addingOffset(orientation, rawGap / 2),
-                width: orientation == .h ? child.hWeight - gap : width,
-                height: orientation == .v ? child.vWeight - gap : height,
-                virtual: Rect(
-                    topLeftX: virtualPoint.x,
-                    topLeftY: virtualPoint.y,
-                    width: orientation == .h ? child.hWeight : width,
-                    height: orientation == .v ? child.vWeight : height,
-                ),
-                context,
-            )
-            virtualPoint = orientation == .h ? virtualPoint.addingXOffset(child.hWeight) : virtualPoint.addingYOffset(child.vWeight)
-            point = orientation == .h ? point.addingXOffset(child.hWeight) : point.addingYOffset(child.vWeight)
+    fileprivate func layoutMasterStack(_ point: CGPoint, width: CGFloat, height: CGFloat, virtual: Rect, _ context: LayoutContext) async throws {
+        if children.isEmpty { return }
+        if children.count == 1 {
+            try await children[0].layoutRecursive(point, width: width, height: height, virtual: virtual, context)
+            return
         }
-    }
 
-    @MainActor
-    fileprivate func layoutAccordion(_ point: CGPoint, width: CGFloat, height: CGFloat, virtual: Rect, _ context: LayoutContext) async throws {
-        guard let mruIndex: Int = mostRecentChild?.ownIndex else { return }
-        for (index, child) in children.enumerated() {
-            let padding = CGFloat(config.accordionPadding)
-            let (lPadding, rPadding): (CGFloat, CGFloat) = switch index {
-                case 0 where children.count == 1: (0, 0)
-                case 0:                           (0, padding)
-                case children.indices.last:       (padding, 0)
-                case mruIndex - 1:                (0, 2 * padding)
-                case mruIndex + 1:                (2 * padding, 0)
-                default:                          (padding, padding)
-            }
-            switch orientation {
-                case .h:
-                    try await child.layoutRecursive(
-                        point + CGPoint(x: lPadding, y: 0),
-                        width: width - rPadding - lPadding,
-                        height: height,
-                        virtual: virtual,
-                        context,
-                    )
-                case .v:
-                    try await child.layoutRecursive(
-                        point + CGPoint(x: 0, y: lPadding),
-                        width: width,
-                        height: height - lPadding - rPadding,
-                        virtual: virtual,
-                        context,
-                    )
-            }
+        let masterWidth = orientation == .h ? width * mfact : width
+        let masterHeight = orientation == .h ? height : height * mfact
+
+        // Master window
+        try await children[0].layoutRecursive(point, width: masterWidth, height: masterHeight, virtual: virtual, context)
+
+        // Stack windows
+        let stackCount = children.count - 1
+        let stackWidth = orientation == .h ? width - masterWidth : width / CGFloat(stackCount)
+        let stackHeight = orientation == .h ? height / CGFloat(stackCount) : height - masterHeight
+
+        for i in 1 ..< children.count {
+            let stackPoint = orientation == .h
+                ? point.addingXOffset(masterWidth).addingYOffset(CGFloat(i - 1) * stackHeight)
+                : point.addingYOffset(masterHeight).addingXOffset(CGFloat(i - 1) * stackWidth)
+            try await children[i].layoutRecursive(stackPoint, width: stackWidth, height: stackHeight, virtual: virtual, context)
         }
     }
 }

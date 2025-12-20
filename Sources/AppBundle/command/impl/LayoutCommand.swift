@@ -10,45 +10,42 @@ struct LayoutCommand: Command {
         guard let window = target.windowOrNil else {
             return io.err(noWindowIsFocused)
         }
+        guard let parent = window.parent else { return false }
         let targetDescription = args.toggleBetween.val.first(where: { !window.matchesDescription($0) })
             ?? args.toggleBetween.val.first.orDie()
         if window.matchesDescription(targetDescription) { return false }
         switch targetDescription {
-            case .h_accordion:
-                return changeTilingLayout(io, targetLayout: .accordion, targetOrientation: .h, window: window)
-            case .v_accordion:
-                return changeTilingLayout(io, targetLayout: .accordion, targetOrientation: .v, window: window)
-            case .h_tiles:
-                return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: .h, window: window)
-            case .v_tiles:
-                return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: .v, window: window)
-            case .accordion:
-                return changeTilingLayout(io, targetLayout: .accordion, targetOrientation: nil, window: window)
-            case .tiles:
-                return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: nil, window: window)
+            case .h_master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: .h, window: window)
+            case .v_master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: .v, window: window)
+            case .master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: nil, window: window)
             case .horizontal:
                 return changeTilingLayout(io, targetLayout: nil, targetOrientation: .h, window: window)
             case .vertical:
                 return changeTilingLayout(io, targetLayout: nil, targetOrientation: .v, window: window)
             case .tiling:
-                guard let parent = window.parent else { return false }
                 switch parent.cases {
-                    case .macosPopupWindowsContainer:
-                        return false // Impossible
-                    case .macosMinimizedWindowsContainer, .macosFullscreenWindowsContainer, .macosHiddenAppsWindowsContainer:
-                        return io.err("Can't change layout for macOS minimized, fullscreen windows or windows or hidden apps. This behavior is subject to change")
-                    case .tilingContainer:
-                        return true // Nothing to do
+                    case .tilingContainer: return false
                     case .workspace(let workspace):
-                        window.lastFloatingSize = try await window.getAxSize() ?? window.lastFloatingSize
-                        try await window.relayoutWindow(on: workspace, forceTile: true)
+                        window.bind(to: workspace.rootTilingContainer, adaptiveWeight: WEIGHT_AUTO, index: INDEX_BIND_LAST)
                         return true
+                    case .macosMinimizedWindowsContainer, .macosFullscreenWindowsContainer,
+                         .macosPopupWindowsContainer, .macosHiddenAppsWindowsContainer:
+                        return io.err("The window is non-tiling")
                 }
             case .floating:
-                let workspace = target.workspace
-                window.bindAsFloatingWindow(to: workspace)
-                if let size = window.lastFloatingSize { window.setAxFrame(nil, size) }
-                return true
+                switch parent.cases {
+                    case .tilingContainer:
+                        guard let workspace = window.nodeWorkspace else { return false }
+                        window.bindAsFloatingWindow(to: workspace)
+                        return true
+                    case .workspace: return false
+                    case .macosMinimizedWindowsContainer, .macosFullscreenWindowsContainer,
+                         .macosPopupWindowsContainer, .macosHiddenAppsWindowsContainer:
+                        return io.err("The window is non-tiling")
+                }
         }
     }
 }
@@ -71,16 +68,13 @@ struct LayoutCommand: Command {
 extension Window {
     fileprivate func matchesDescription(_ layout: LayoutCmdArgs.LayoutDescription) -> Bool {
         return switch layout {
-            case .accordion:   (parent as? TilingContainer)?.layout == .accordion
-            case .tiles:       (parent as? TilingContainer)?.layout == .tiles
             case .horizontal:  (parent as? TilingContainer)?.orientation == .h
             case .vertical:    (parent as? TilingContainer)?.orientation == .v
-            case .h_accordion: (parent as? TilingContainer).map { $0.layout == .accordion && $0.orientation == .h } == true
-            case .v_accordion: (parent as? TilingContainer).map { $0.layout == .accordion && $0.orientation == .v } == true
-            case .h_tiles:     (parent as? TilingContainer).map { $0.layout == .tiles && $0.orientation == .h } == true
-            case .v_tiles:     (parent as? TilingContainer).map { $0.layout == .tiles && $0.orientation == .v } == true
             case .tiling:      parent is TilingContainer
-            case .floating:    parent is Workspace
+            case .floating:    !(parent is TilingContainer)
+            case .master_stack: (parent as? TilingContainer)?.layout == .masterStack
+            case .h_master_stack: (parent as? TilingContainer)?.layout == .masterStack && (parent as? TilingContainer)?.orientation == .h
+            case .v_master_stack: (parent as? TilingContainer)?.layout == .masterStack && (parent as? TilingContainer)?.orientation == .v
         }
     }
 }

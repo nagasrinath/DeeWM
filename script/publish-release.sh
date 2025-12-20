@@ -32,22 +32,22 @@ fi
 ./run-tests.sh
 ./build-release.sh --build-version "$build_version"
 
-git tag -a "v$build_version" -m "v$build_version" && git push git@github.com:nikitabobko/AeroSpace.git "v$build_version"
-link="https://github.com/nikitabobko/AeroSpace/releases/new?tag=v$build_version"
+git tag -a "v$build_version" -m "v$build_version" && git push git@github.com:hillyu/Dwmac.git "v$build_version"
+link="https://github.com/hillyu/Dwmac/releases/new?tag=v$build_version"
 open "$link" || { echo "$link"; exit 1; }
 sleep 1
-open -R "./.release/AeroSpace-v$build_version.zip"
+open -R "./.release/Dwmac-v$build_version.zip"
 
 echo "Please upload .zip to GitHub release and hit Enter"
 read -r
 
 ./script/build-brew-cask.sh \
-    --cask-name aerospace \
-    --zip-uri "https://github.com/nikitabobko/AeroSpace/releases/download/v$build_version/AeroSpace-v$build_version.zip" \
+    --cask-name dwmac \
+    --zip-uri "https://github.com/hillyu/Dwmac/releases/download/v$build_version/Dwmac-v$build_version.zip" \
     --build-version "$build_version"
 
 eval "$cask_git_repo_path/pin.sh"
-cp -r .release/aerospace.rb "$cask_git_repo_path/Casks/aerospace.rb"
+cp -r .release/dwmac.rb "$cask_git_repo_path/Casks/dwmac.rb"
 
 rm -rf "${site_git_repo_path:?}/*" # https://www.shellcheck.net/wiki/SC2115
 cp -r .site/* "$site_git_repo_path"

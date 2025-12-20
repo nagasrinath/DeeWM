@@ -78,7 +78,7 @@
       "AXUIElement(AxWindowId=22408, title=\"Slack\", role=\"AXWindow\", subrole=\"AXStandardWindow\")",
       "AXUIElement(AxWindowId=22405, title=\"Slack\", role=\"AXWindow\", subrole=\"AXStandardWindow\")",
       "AXUIElement(AxWindowId=22410, title=\"\", role=\"AXWindow\", subrole=\"AXSystemDialog\")",
-      "AXUIElement(AxWindowId=22392, title=\"* bobko-test-2 (Channel) - redacted - Slack [Main] 匠痔\", role=\"AXWindow\", subrole=\"AXStandardWindow\")"
+      "AXUIElement(AxWindowId=22392, title=\"* hillyu-test-2 (Channel) - redacted - Slack [Main] 匠痔\", role=\"AXWindow\", subrole=\"AXStandardWindow\")"
     ],
     "Aero.AxFailed" : "isWritable.AXFunctionRowTopLevelElements, get.AXFrame, isWritable.AXFrame, get.AXExtrasMenuBar, isWritable.AXExtrasMenuBar, get.AXSize, isWritable.AXSize, get.AXPosition, isWritable.AXPosition",
     "Aero.AxIgnored" : "AXChildren, AXChildrenInNavigationOrder, AXEnhancedUserInterface, AXPreferredLanguage, AXRoleDescription, AXHidden",

@@ -7,7 +7,7 @@ struct SplitCommand: Command {
 
     func run(_ env: CmdEnv, _ io: CmdIo) -> Bool {
         if config.enableNormalizationFlattenContainers {
-            return io.err("'split' has no effect when 'enable-normalization-flatten-containers' normalization enabled. My recommendation: keep the normalizations enabled, and prefer 'join-with' over 'split'.")
+            return io.err("'split' has no effect when 'enable-normalization-flatten-containers' normalization enabled.")
         }
         guard let target = args.resolveTargetOrReportError(env, io) else { return false }
         guard let window = target.windowOrNil else {
@@ -32,7 +32,7 @@ struct SplitCommand: Command {
                         parent: parent,
                         adaptiveWeight: data.adaptiveWeight,
                         orientation,
-                        .tiles,
+                        .masterStack,
                         index: data.index,
                     )
                     window.bind(to: newParent, adaptiveWeight: WEIGHT_AUTO, index: 0)

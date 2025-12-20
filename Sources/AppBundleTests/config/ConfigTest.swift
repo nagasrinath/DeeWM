@@ -196,12 +196,12 @@ final class ConfigTest: XCTestCase {
         XCTAssertTrue(parseCommand("move-workspace-to-display --wrap-around next").cmdOrNil is MoveWorkspaceToMonitorCommand)
     }
 
-    func testParseTiles() {
-        let command = parseCommand("layout tiles h_tiles v_tiles list h_list v_list").cmdOrNil
+    func testParseMasterStack() {
+        let command = parseCommand("layout master-stack h_master-stack v_master-stack").cmdOrNil
         XCTAssertTrue(command is LayoutCommand)
-        assertEquals((command as! LayoutCommand).args.toggleBetween.val, [.tiles, .h_tiles, .v_tiles, .tiles, .h_tiles, .v_tiles])
+        assertEquals((command as! LayoutCommand).args.toggleBetween.val, [.master_stack, .h_master_stack, .v_master_stack])
 
-        guard case .help = parseCommand("layout tiles -h") else {
+        guard case .help = parseCommand("layout master-stack -h") else {
             XCTFail()
             return
         }
@@ -222,8 +222,6 @@ final class ConfigTest: XCTestCase {
                 1. usage of 'split' command
                 2. enable-normalization-flatten-containers = true
                 These two settings don't play nicely together. 'split' command has no effect when enable-normalization-flatten-containers is disabled.
-
-                My recommendation: keep the normalizations enabled, and prefer 'join-with' over 'split'.
                 """],
             errors.descriptions,
         )
@@ -282,7 +280,7 @@ final class ConfigTest: XCTestCase {
             [[on-window-detected]] # 4
                 run = ['move-node-to-workspace S', 'move-node-to-workspace W']
             [[on-window-detected]] # 5
-                run = ['move-node-to-workspace S', 'layout h_tiles']
+                run = ['move-node-to-workspace S', 'layout h_master-stack']
             """,
         )
         assertEquals(parsed.onWindowDetected, [
@@ -321,7 +319,7 @@ final class ConfigTest: XCTestCase {
             WindowDetectedCallback( // 5
                 rawRun: [
                     MoveNodeToWorkspaceCommand(args: MoveNodeToWorkspaceCmdArgs(workspace: "S")),
-                    LayoutCommand(args: LayoutCmdArgs(rawArgs: [], toggleBetween: [.h_tiles])),
+                    LayoutCommand(args: LayoutCmdArgs(rawArgs: [], toggleBetween: [.h_master_stack])),
                 ],
             ),
         ])

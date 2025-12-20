@@ -22,3 +22,9 @@
 # XCode User settings
 xcuserdata/
 xcshareddata/
+
+# Project planning and logs
+ACTION.md
+build.log
+DEFINE.md
+PLAN.md

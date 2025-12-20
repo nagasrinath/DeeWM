@@ -108,7 +108,6 @@ private let configParser: [String: any ParserProtocol<Config>] = [
 
     "start-at-login": Parser(\.startAtLogin, parseBool),
     "automatically-unhide-macos-hidden-apps": Parser(\.automaticallyUnhideMacosHiddenApps, parseBool),
-    "accordion-padding": Parser(\.accordionPadding, parseInt),
     persistentWorkspacesKey: Parser(\.persistentWorkspaces, parsePersistentWorkspaces),
     "exec-on-workspace-change": Parser(\.execOnWorkspaceChange, parseArrayOfStrings),
     "exec": Parser(\.execConfig, parseExecConfig),
@@ -148,7 +147,7 @@ func parseAfterLoginCommand(_ raw: TOMLValueConvertible, _ backtrace: TomlBacktr
     if let array = raw.array, array.count == 0 {
         return .success([])
     }
-    let msg = "after-login-command is deprecated since AeroSpace 0.19.0. https://github.com/nikitabobko/AeroSpace/issues/1482"
+    let msg = "after-login-command is deprecated since Dwmac 0.19.0. https://github.com/hillyu/Dwmac/issues/1482"
     return .failure(.semantic(backtrace, msg))
 }
 
@@ -217,8 +216,6 @@ func parseCommandOrCommands(_ raw: TOMLValueConvertible) -> Parsed<[any Command]
                 1. usage of 'split' command
                 2. enable-normalization-flatten-containers = true
                 These two settings don't play nicely together. 'split' command has no effect when enable-normalization-flatten-containers is disabled.
-
-                My recommendation: keep the normalizations enabled, and prefer 'join-with' over 'split'.
                 """,
             )]
         }
@@ -230,7 +227,7 @@ func parseIndentForNestedContainersWithTheSameOrientation(
     _ raw: TOMLValueConvertible,
     _ backtrace: TomlBacktrace,
 ) -> ParsedToml<Void> {
-    let msg = "Deprecated. Please drop it from the config. See https://github.com/nikitabobko/AeroSpace/issues/96"
+    let msg = "Deprecated. Please drop it from the config. See https://github.com/hillyu/Dwmac/issues/96"
     return .failure(.semantic(backtrace, msg))
 }
 

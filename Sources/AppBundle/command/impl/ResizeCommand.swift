@@ -9,7 +9,7 @@ struct ResizeCommand: Command { // todo cover with tests
         guard let target = args.resolveTargetOrReportError(env, io) else { return false }
 
         let candidates = target.windowOrNil?.parentsWithSelf
-            .filter { ($0.parent as? TilingContainer)?.layout == .tiles }
+            .filter { ($0.parent as? TilingContainer)?.layout == .masterStack }
             ?? []
 
         let orientation: Orientation?
@@ -33,7 +33,7 @@ struct ResizeCommand: Command { // todo cover with tests
                 node = candidates.first(where: { ($0.parent as? TilingContainer)?.orientation == orientation })
                 parent = node?.parent as? TilingContainer
         }
-        guard let parent else { return io.err("resize command doesn't support floating windows yet https://github.com/nikitabobko/AeroSpace/issues/9") }
+        guard let parent else { return io.err("resize command doesn't support floating windows yet https://github.com/hillyu/Dwmac/issues/9") }
         guard let orientation else { return false }
         guard let node else { return false }
         let diff: CGFloat = switch args.units.val {
