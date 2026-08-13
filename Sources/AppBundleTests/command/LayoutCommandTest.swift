@@ -62,6 +62,44 @@ final class LayoutCommandTest: XCTestCase {
         assertEquals(root.layoutDescription, .h_accordion([.window(1), .window(2)]))
     }
 
+    func testChangeLayoutToMasterStack() async {
+        let root = Workspace.get(byName: name).rootTilingContainer.apply {
+            assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)
+            TestWindow.new(id: 2, parent: $0)
+        }
+        assertEquals(root.layout, .tiles)
+
+        await parseCommand("layout master-stack").cmdOrDie.run(.defaultEnv, .emptyStdin)
+        assertEquals(root.layout, .masterStack)
+        assertEquals(root.layoutDescription, .h_master_stack([.window(1), .window(2)]))
+    }
+
+    func testChangeLayoutToMasterStackWithOrientation() async {
+        let root = Workspace.get(byName: name).rootTilingContainer.apply {
+            assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)
+            TestWindow.new(id: 2, parent: $0)
+        }
+
+        await parseCommand("layout v_master-stack").cmdOrDie.run(.defaultEnv, .emptyStdin)
+        assertEquals(root.layout, .masterStack)
+        assertEquals(root.orientation, .v)
+        assertEquals(root.layoutDescription, .v_master_stack([.window(1), .window(2)]))
+    }
+
+    func testToggleBetweenTilesAndMasterStack() async {
+        let root = Workspace.get(byName: name).rootTilingContainer.apply {
+            assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)
+            TestWindow.new(id: 2, parent: $0)
+        }
+        assertEquals(root.layout, .tiles)
+
+        await parseCommand("layout h_tiles h_master-stack").cmdOrDie.run(.defaultEnv, .emptyStdin)
+        assertEquals(root.layout, .masterStack)
+
+        await parseCommand("layout h_tiles h_master-stack").cmdOrDie.run(.defaultEnv, .emptyStdin)
+        assertEquals(root.layout, .tiles)
+    }
+
     func testChangeBothLayoutAndOrientation() async {
         let root = Workspace.get(byName: name).rootTilingContainer.apply {
             assertEquals(TestWindow.new(id: 1, parent: $0).focusWindow(), true)

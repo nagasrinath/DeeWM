@@ -594,6 +594,14 @@ final class ConfigTest: XCTestCase {
         assertEquals(listResult.errors, [])
         assertEquals(listResult.config.defaultRootContainerLayout, .tiles)
 
+        let masterStackResult = parseConfig(
+            """
+            default-root-container-layout = 'master-stack'
+            """,
+        )
+        assertEquals(masterStackResult.errors, [])
+        assertEquals(masterStackResult.config.defaultRootContainerLayout, .masterStack)
+
         let bad = parseConfig(
             """
             default-root-container-layout = 'bogus'
@@ -602,6 +610,82 @@ final class ConfigTest: XCTestCase {
         assertEquals(
             bad.strErrors,
             ["[ERROR] default-root-container-layout: Can\'t parse layout \'bogus\'"],
+        )
+    }
+
+    func testParseMasterPosition() {
+        let result = parseConfig(
+            """
+            master-position = 'right'
+            """,
+        )
+        assertEquals(result.errors, [])
+        assertEquals(result.config.masterPosition, .right)
+
+        assertEquals(defaultConfig.masterPosition, .left) // Default value
+
+        let bad = parseConfig(
+            """
+            master-position = 'bogus'
+            """,
+        )
+        assertEquals(
+            bad.strErrors,
+            ["[ERROR] master-position: Can\'t parse master position \'bogus\'. Possible values: left, right"],
+        )
+    }
+
+    func testParseAttachBelow() {
+        let result = parseConfig(
+            """
+            attach-below = true
+            """,
+        )
+        assertEquals(result.errors, [])
+        assertEquals(result.config.attachBelow, true)
+        assertEquals(defaultConfig.attachBelow, false) // Default value
+    }
+
+    func testParseCenterFloatingWindows() {
+        let result = parseConfig(
+            """
+            center-floating-windows = true
+            """,
+        )
+        assertEquals(result.errors, [])
+        assertEquals(result.config.centerFloatingWindows, true)
+        assertEquals(defaultConfig.centerFloatingWindows, false) // Default value
+    }
+
+    func testParseDefaultMfact() {
+        let result = parseConfig(
+            """
+            default-mfact = "0.7"
+            """,
+        )
+        assertEquals(result.errors, [])
+        XCTAssertEqual(result.config.defaultMfact, 0.7, accuracy: 0.001)
+
+        XCTAssertEqual(defaultConfig.defaultMfact, 0.5, accuracy: 0.001) // Default value
+
+        let outOfRange = parseConfig(
+            """
+            default-mfact = "42"
+            """,
+        )
+        assertEquals(
+            outOfRange.strErrors,
+            ["[ERROR] default-mfact: default-mfact must be in the [0.05, 0.95] range, got 42.0"],
+        )
+
+        let notANumber = parseConfig(
+            """
+            default-mfact = "bogus"
+            """,
+        )
+        assertEquals(
+            notANumber.strErrors,
+            ["[ERROR] default-mfact: Can\'t parse \'bogus\' as a floating point number"],
         )
     }
 
