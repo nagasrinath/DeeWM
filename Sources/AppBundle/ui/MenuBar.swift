@@ -42,10 +42,10 @@ public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it 
                 Divider()
             }
             Button {
-                NSWorkspace.shared.open(URL(string: "https://github.com/sponsors/nikitabobko").orDie())
+                NSWorkspace.shared.open(URL(string: "https://github.com/sponsors/nagasrinath").orDie())
                 viewModel.sponsorshipMessage = sponsorshipPrompts.randomElement().orDie()
             } label: {
-                Text("Sponsor AeroSpace on GitHub")
+                Text("Sponsor DeeWM on GitHub")
                 Text(viewModel.sponsorshipMessage)
             }
             Divider()
@@ -61,7 +61,7 @@ public func menuBar(viewModel: TrayMenuModel) -> some Scene { // todo should it 
             openConfigButton()
             reloadConfigButton(warningsAsErrors: false)
         } else {
-            Button("AeroSpace requires accessibility permission to move windows") {
+            Button("DeeWM requires accessibility permission to move windows") {
                 viewModel.axPermissionStatus = .waitingWithPrompt
             }
         }

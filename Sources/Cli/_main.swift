@@ -5,7 +5,7 @@ import Network
 
 let usage =
     """
-    USAGE: \(CommandLine.arguments.first ?? "aerospace") [-h|--help] [-v|--version] <subcommand> [<args>...]
+    USAGE: \(CommandLine.arguments.first ?? "deewm") [-h|--help] [-v|--version] <subcommand> [<args>...]
 
     SUBCOMMANDS:
     \(subcommandDescriptions.sortedBy { $0[0] }.toPaddingTable(columnSeparator: "   ").joined(separator: "\n"))
@@ -38,16 +38,16 @@ struct Main {
             }
             print(
                 """
-                aerospace CLI client version: \(cliClientVersionAndHash)
-                AeroSpace.app server version: \(serverVersionAndHash ?? "Unknown. The server is not responding")
+                deewm CLI client version: \(cliClientVersionAndHash)
+                DeeWM.app server version: \(serverVersionAndHash ?? "Unknown. The server is not responding")
                 """,
             )
             if serverVersionAndHash != nil && cliClientVersionAndHash != serverVersionAndHash {
                 eprint(
                     """
-                    Warning: AeroSpace client/server versions don't match. Possible fixes:
-                      - Restart AeroSpace.app (server restart is required after each update)
-                      - Reinstall and restart AeroSpace (corrupted installation)
+                    Warning: DeeWM client/server versions don't match. Possible fixes:
+                      - Restart DeeWM.app (server restart is required after each update)
+                      - Reinstall and restart DeeWM (corrupted installation)
                     """,
                 )
             }
@@ -74,7 +74,7 @@ struct Main {
             case .customError(let msg):
                 exit(failExitCode, err: msg)
             case .nwError(let e):
-                exit(failExitCode, err: "Can't connect to AeroSpace server. Is AeroSpace.app running?\n\(e.localizedDescription)")
+                exit(failExitCode, err: "Can't connect to DeeWM server. Is DeeWM.app running?\n\(e.localizedDescription)")
         }
 
         var stdin = ""
@@ -105,8 +105,8 @@ struct Main {
             }
         }
 
-        let windowId = ProcessInfo.processInfo.environment[AEROSPACE_WINDOW_ID].flatMap(UInt32.init)
-        let workspace = ProcessInfo.processInfo.environment[AEROSPACE_WORKSPACE]
+        let windowId = ProcessInfo.processInfo.environment[DEEWM_WINDOW_ID].flatMap(UInt32.init)
+        let workspace = ProcessInfo.processInfo.environment[DEEWM_WORKSPACE]
 
         // Handle subscribe command specially
         if parsedArgs is SubscribeCmdArgs {
@@ -121,12 +121,12 @@ struct Main {
         if ans.exitCode != EXIT_CODE_ZERO && ans.serverVersionAndHash != cliClientVersionAndHash {
             eprint(
                 """
-                Warning: AeroSpace client/server versions don't match
-                  - aerospace CLI client version: \(cliClientVersionAndHash)
-                  - AeroSpace.app server version: \(ans.serverVersionAndHash)
+                Warning: DeeWM client/server versions don't match
+                  - deewm CLI client version: \(cliClientVersionAndHash)
+                  - DeeWM.app server version: \(ans.serverVersionAndHash)
                   Possible fixes:
-                  - Restart AeroSpace.app (server restart is required after each update)
-                  - Reinstall and restart AeroSpace (corrupted installation)
+                  - Restart DeeWM.app (server restart is required after each update)
+                  - Reinstall and restart DeeWM (corrupted installation)
                 """,
             )
         }

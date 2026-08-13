@@ -1,8 +1,15 @@
-# AeroSpace Beta [![Build](https://github.com/nikitabobko/AeroSpace/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/nikitabobko/AeroSpace/actions/workflows/build.yml)
+# DeeWM
 
 <img src="./resources/Assets.xcassets/AppIcon.appiconset/icon.png" width="40%" align="right">
 
-AeroSpace is an i3-like tiling window manager for macOS
+DeeWM is an i3-like tiling window manager for macOS, with a dwm-style `master-stack` layout added on top.
+
+> [!NOTE]
+> DeeWM is a fork of [AeroSpace](https://github.com/nikitabobko/AeroSpace) by Nikita Bobko, rebased onto AeroSpace's
+> latest upstream changes with the `master-stack`/`mfact`/`move-node-to-master` dwm-style layout (originally prototyped
+> in [hillyu/Dwmac](https://github.com/hillyu/Dwmac)) re-implemented additively on top of AeroSpace's existing tiling
+> engine. Most of the documentation linked below is AeroSpace's own upstream documentation and is accurate for
+> everything except the `master-stack`-specific additions.
 
 Videos:
 - [YouTube 91 sec Demo](https://www.youtube.com/watch?v=UOl7ErqWbrk)
@@ -26,18 +33,17 @@ Docs:
 
 ## Installation
 
-Install via [Homebrew](https://brew.sh/) to get autoupdates (Preferred)
-
-```
-brew install --cask nikitabobko/tap/aerospace
-```
+> [!NOTE]
+> There is no Homebrew cask for DeeWM yet (`nikitabobko/tap/aerospace` installs the original, upstream AeroSpace,
+> not DeeWM). For now, build from source (`./build-release.sh`, or open `xcode/DeeWM.xcodeproj` in Xcode) or use a
+> debug build (`./run-debug.sh`).
 
 In multi-monitor setup please make sure that monitors [are properly arranged](https://nikitabobko.github.io/AeroSpace/guide#proper-monitor-arrangement).
 
-Other installation options: https://nikitabobko.github.io/AeroSpace/guide#installation
+Other installation options (upstream AeroSpace docs, still broadly applicable): https://nikitabobko.github.io/AeroSpace/guide#installation
 
 > [!NOTE]
-> By using AeroSpace, you acknowledge that it's not [notarized](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution).
+> By using DeeWM, you acknowledge that it's not [notarized](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution).
 >
 > Notarization is a "security" feature by Apple.
 > You send binaries to Apple, and they either approve them or not.
