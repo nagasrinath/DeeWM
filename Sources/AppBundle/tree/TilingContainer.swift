@@ -5,11 +5,19 @@ final class TilingContainer: TreeNode, NonLeafTreeNodeObject { // todo consider 
     fileprivate var _orientation: Orientation
     var orientation: Orientation { _orientation }
     var layout: Layout
+    /// Master area split ratio for the `master-stack` layout. Only meaningful when `layout == .masterStack`.
+    /// Always clamped to [0.05, 0.95]. Defaults from `config.defaultMfact`.
+    fileprivate var _mfact: CGFloat
+    var mfact: CGFloat {
+        get { _mfact }
+        set { _mfact = newValue.coerce(in: 0.05 ... 0.95) }
+    }
 
     @MainActor
     init(parent: NonLeafTreeNodeObject, adaptiveWeight: CGFloat, _ orientation: Orientation, _ layout: Layout, index: Int) {
         self._orientation = orientation
         self.layout = layout
+        self._mfact = CGFloat(config.defaultMfact).coerce(in: 0.05 ... 0.95)
         super.init(parent: parent, adaptiveWeight: adaptiveWeight, index: index)
     }
 
@@ -58,6 +66,7 @@ extension TilingContainer {
 enum Layout: String {
     case tiles
     case accordion
+    case masterStack = "master-stack"
 }
 
 extension String {

@@ -49,10 +49,16 @@ struct LayoutCommand: Command {
                 return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: .h, node: node)
             case .v_tiles:
                 return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: .v, node: node)
+            case .h_master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: .h, node: node)
+            case .v_master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: .v, node: node)
             case .accordion:
                 return changeTilingLayout(io, targetLayout: .accordion, targetOrientation: nil, node: node)
             case .tiles:
                 return changeTilingLayout(io, targetLayout: .tiles, targetOrientation: nil, node: node)
+            case .master_stack:
+                return changeTilingLayout(io, targetLayout: .masterStack, targetOrientation: nil, node: node)
             case .horizontal:
                 return changeTilingLayout(io, targetLayout: nil, targetOrientation: .h, node: node)
             case .vertical:
@@ -105,12 +111,15 @@ extension ConventionalWindowParentCases {
         return switch layout {
             case .accordion:   tilingContainerOrNil?.layout == .accordion
             case .tiles:       tilingContainerOrNil?.layout == .tiles
+            case .master_stack: tilingContainerOrNil?.layout == .masterStack
             case .horizontal:  tilingContainerOrNil?.orientation == .h
             case .vertical:    tilingContainerOrNil?.orientation == .v
             case .h_accordion: tilingContainerOrNil.map { $0.layout == .accordion && $0.orientation == .h } == true
             case .v_accordion: tilingContainerOrNil.map { $0.layout == .accordion && $0.orientation == .v } == true
             case .h_tiles:     tilingContainerOrNil.map { $0.layout == .tiles && $0.orientation == .h } == true
             case .v_tiles:     tilingContainerOrNil.map { $0.layout == .tiles && $0.orientation == .v } == true
+            case .h_master_stack: tilingContainerOrNil.map { $0.layout == .masterStack && $0.orientation == .h } == true
+            case .v_master_stack: tilingContainerOrNil.map { $0.layout == .masterStack && $0.orientation == .v } == true
             case .tiling:      tilingContainerOrNil != nil
             case .floating:    floatingWindowsContainerOrNil != nil
         }

@@ -226,10 +226,17 @@ private func unbindAndGetBindingDataForNewTilingWindow(_ workspace: Workspace, w
     window?.unbindFromParent() // It's important to unbind to get correct data from below
     let mruWindow = workspace.mostRecentWindowRecursive
     if let mruWindow, let tilingParent = mruWindow.parent as? TilingContainer {
+        // In 'master-stack' containers, honor dwm-style attach-below semantics:
+        // attach-below = false (default) -> new window becomes master (index 0)
+        // attach-below = true            -> new window attaches right after the focused window (AeroSpace's usual behavior)
+        // Other layouts (tiles/accordion) are unaffected and always attach next to the focused window, as before.
+        let index = (tilingParent.layout == .masterStack && !config.attachBelow)
+            ? 0
+            : mruWindow.ownIndex.orDie() + 1
         return BindingData(
             parent: tilingParent,
             adaptiveWeight: WEIGHT_AUTO,
-            index: mruWindow.ownIndex.orDie() + 1,
+            index: index,
         )
     } else {
         return BindingData(

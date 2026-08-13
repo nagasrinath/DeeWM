@@ -61,10 +61,24 @@ struct Config: ConvenienceMutable {
     var modes: [String: Mode] = [:]
     var onWindowDetected: [WindowDetectedCallback] = []
     var onModeChanged: Shell<any Command> = .empty
+
+    /// Default master area split ratio (mfact) for newly created 'master-stack' containers. Range: [0.05, 0.95]
+    var defaultMfact: Double = 0.5
+    /// Which side the master area is placed on for horizontally-oriented 'master-stack' containers
+    var masterPosition: MasterPosition = .left
+    /// If true, newly created tiling windows are attached at the end of their container (bottom of the stack)
+    /// instead of right next to the most-recently-focused window
+    var attachBelow: Bool = false
+    /// If true, floating windows are centered on their monitor instead of preserving their natural position
+    var centerFloatingWindows: Bool = false
 }
 
 struct FocusFollowsMouse: ConvenienceMutable {
     var enabled: Bool = false
+}
+
+enum MasterPosition: String {
+    case left, right
 }
 
 enum ConfigVersion: Int, Comparable, CaseIterable, Sendable, CustomStringConvertible {

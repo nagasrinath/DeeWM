@@ -158,6 +158,12 @@ private let configParser: [String: any ParserProtocol<Config>] = [
     "workspace-to-monitor-force-assignment": Parser(\.workspaceToMonitorForceAssignment, parseWorkspaceToMonitorAssignment),
     "on-window-detected": Parser(\.onWindowDetected, parseOnWindowDetectedArray),
 
+    // 'master-stack' layout
+    "default-mfact": Parser(\.defaultMfact, parseMfactFloat),
+    "master-position": Parser(\.masterPosition, parseMasterPosition),
+    "attach-below": Parser(\.attachBelow, parseBool),
+    "center-floating-windows": Parser(\.centerFloatingWindows, parseBool),
+
     // Deprecated
     "non-empty-workspaces-root-containers-layout-on-startup": Parser(\._nonEmptyWorkspacesRootContainersLayoutOnStartup, parseStartupRootContainerLayout),
     "indent-for-nested-containers-with-the-same-orientation": Parser(\._indentForNestedContainersWithTheSameOrientation, parseIndentForNestedContainersWithTheSameOrientation),
@@ -409,6 +415,26 @@ private func parseArrayOfStrings(_ raw: OrderedJson, _ backtrace: ConfigBacktrac
                 parseString(elem, backtrace + .index(index))
             }
         }
+}
+
+private func parseMasterPosition(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ResOrConfigParseDiagnostic<MasterPosition> {
+    parseString(raw, backtrace).flatMap {
+        MasterPosition(rawValue: $0).toResult(.init(backtrace, "Can't parse master position '\($0)'. Possible values: left, right"))
+    }
+}
+
+// NOTE: AeroSpace's config value model (OrderedJson/Json) has no dedicated float/double case, so unquoted TOML
+// decimals (e.g. `default-mfact = 0.5`) aren't representable yet. Until that's added upstream, mfact-like values
+// must be written as quoted strings (e.g. `default-mfact = "0.5"`).
+private func parseMfactFloat(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ResOrConfigParseDiagnostic<Double> {
+    parseString(raw, backtrace).flatMap {
+        Double($0).toResult(.init(backtrace, "Can't parse '\($0)' as a floating point number"))
+            .flatMap { value in
+                (0.05 ... 0.95).contains(value)
+                    ? .success(value)
+                    : .failure(.init(backtrace, "default-mfact must be in the [0.05, 0.95] range, got \(value)"))
+            }
+    }
 }
 
 private func parseDefaultContainerOrientation(_ raw: OrderedJson, _ backtrace: ConfigBacktrace) -> ResOrConfigParseDiagnostic<DefaultContainerOrientation> {

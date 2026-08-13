@@ -15,10 +15,14 @@ struct BalanceSizesCommand: Command {
 
 @MainActor
 private func balance(_ parent: TilingContainer) {
+    if parent.layout == .masterStack {
+        // master-stack doesn't use weights (see below); reset mfact to the configured default instead
+        parent.mfact = CGFloat(config.defaultMfact)
+    }
     for child in parent.children {
         switch parent.layout {
             case .tiles: child.setWeight(parent.orientation, 1)
-            case .accordion: break // Do nothing
+            case .accordion, .masterStack: break // Do nothing
         }
         if let child = child as? TilingContainer {
             balance(child)

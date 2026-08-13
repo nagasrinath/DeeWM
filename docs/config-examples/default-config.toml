@@ -26,8 +26,27 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # You can set 0 to disable the padding feature
 accordion-padding = 30
 
-# Possible values: tiles|accordion
+# Possible values: tiles|accordion|master-stack
 default-root-container-layout = 'tiles'
+
+# DeeWM extension. Only has effect for 'master-stack' containers.
+# Master area split ratio (aka 'mfact'). NOTE: must be a quoted string for now (e.g. "0.5"), range [0.05, 0.95]
+# Fallback value (if you omit the key): default-mfact = "0.5"
+# default-mfact = "0.5"
+
+# DeeWM extension. Which side the master area is placed on for horizontally-oriented 'master-stack' containers
+# Possible values: left|right
+# Fallback value (if you omit the key): master-position = 'left'
+# master-position = 'left'
+
+# DeeWM extension. If true, new tiling windows attach at the end of the container (bottom of the stack)
+# instead of right next to the focused window. Only affects 'master-stack' containers
+# Fallback value (if you omit the key): attach-below = false
+# attach-below = false
+
+# DeeWM extension. If true, floating windows are centered on their monitor instead of preserving their position
+# Fallback value (if you omit the key): center-floating-windows = false
+# center-floating-windows = false
 
 # Possible values: horizontal|vertical|auto
 # 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,

@@ -48,6 +48,8 @@ extension TreeNode {
                         try await container.layoutTiles(point, width: width, height: height, virtual: virtual, context)
                     case .accordion:
                         try await container.layoutAccordion(point, width: width, height: height, virtual: virtual, context)
+                    case .masterStack:
+                        try await container.layoutMasterStack(point, width: width, height: height, virtual: virtual, context)
                 }
             case .macosMinimizedWindowsContainer, .macosFullscreenWindowsContainer,
                  .macosPopupWindowsContainer, .macosHiddenAppsWindowsContainer:
@@ -71,6 +73,23 @@ extension Window {
     @MainActor
     fileprivate func layoutFloatingWindow(_ context: LayoutContext) async throws {
         let workspace = context.workspace
+
+        if config.centerFloatingWindows && windowId != currentlyManipulatedWithMouseWindowId {
+            if let windowSize = try await getAxSize(.cancellable) ?? lastFloatingSize {
+                let monitorRect = workspace.workspaceMonitor.visibleRect
+                let topLeft = CGPoint(
+                    x: monitorRect.topLeftX + (monitorRect.width - windowSize.width) / 2,
+                    y: monitorRect.topLeftY + (monitorRect.height - windowSize.height) / 2,
+                )
+                setAxFrame(topLeft, nil)
+            }
+            if isFullscreen {
+                layoutFullscreen(context)
+                isFullscreen = false
+            }
+            return
+        }
+
         let windowRect = try await getAxRect(.cancellable) // Probably not idempotent
         let currentMonitor = windowRect?.center.monitorApproximation
         if let currentMonitor, let windowRect, workspace != currentMonitor.activeWorkspace {
@@ -137,6 +156,87 @@ extension TilingContainer {
             )
             virtualPoint = orientation == .h ? virtualPoint.addingXOffset(child.hWeight) : virtualPoint.addingYOffset(child.vWeight)
             point = orientation == .h ? point.addingXOffset(child.hWeight) : point.addingYOffset(child.vWeight)
+        }
+    }
+
+    /// dwm-style master-stack layout: `children[0]` is the master window occupying an `mfact` share of the
+    /// container's main axis; the remaining children ("stack") evenly share the rest, arranged along the cross axis.
+    /// For horizontal containers, `config.masterPosition` chooses which side (left/right) the master area is on.
+    /// For vertical containers, master is always on top (matches dwm/dwmac semantics).
+    @MainActor
+    fileprivate func layoutMasterStack(_ point: CGPoint, width: CGFloat, height: CGFloat, virtual: Rect, _ context: LayoutContext) async throws {
+        let children = self.children
+        if children.isEmpty { return }
+
+        if children.count == 1 {
+            try await children[0].layoutRecursive(point, width: width, height: height, virtual: virtual, context)
+            return
+        }
+
+        let gapMain = CGFloat(context.resolvedGaps.inner.get(orientation)) // gap between master and stack areas
+        let gapCross = CGFloat(context.resolvedGaps.inner.get(orientation.opposite)) // gap between stacked windows
+        let mfact = self.mfact
+        let stackCount = children.count - 1
+
+        let masterRect: Rect
+        let stackRects: [Rect]
+        let masterVirtual: Rect
+        let stackVirtuals: [Rect]
+
+        switch orientation {
+            case .h:
+                let masterWidth = (width - gapMain) * mfact
+                let stackWidth = width - masterWidth - gapMain
+                let stackItemHeight = (height - CGFloat(stackCount - 1) * gapCross) / CGFloat(stackCount)
+
+                let masterVirtualWidth = width > 0 ? virtual.width * (masterWidth / width) : virtual.width
+                let stackVirtualWidth = virtual.width - masterVirtualWidth
+                let stackVirtualItemHeight = virtual.height / CGFloat(stackCount)
+
+                if config.masterPosition == .right {
+                    masterRect = Rect(topLeftX: point.x + stackWidth + gapMain, topLeftY: point.y, width: masterWidth, height: height)
+                    masterVirtual = Rect(topLeftX: virtual.topLeftX + stackVirtualWidth, topLeftY: virtual.topLeftY, width: masterVirtualWidth, height: virtual.height)
+                    stackRects = (0 ..< stackCount).map { i in
+                        Rect(topLeftX: point.x, topLeftY: point.y + CGFloat(i) * (stackItemHeight + gapCross), width: stackWidth, height: stackItemHeight)
+                    }
+                    stackVirtuals = (0 ..< stackCount).map { i in
+                        Rect(topLeftX: virtual.topLeftX, topLeftY: virtual.topLeftY + CGFloat(i) * stackVirtualItemHeight, width: stackVirtualWidth, height: stackVirtualItemHeight)
+                    }
+                } else {
+                    masterRect = Rect(topLeftX: point.x, topLeftY: point.y, width: masterWidth, height: height)
+                    masterVirtual = Rect(topLeftX: virtual.topLeftX, topLeftY: virtual.topLeftY, width: masterVirtualWidth, height: virtual.height)
+                    stackRects = (0 ..< stackCount).map { i in
+                        Rect(topLeftX: point.x + masterWidth + gapMain, topLeftY: point.y + CGFloat(i) * (stackItemHeight + gapCross), width: stackWidth, height: stackItemHeight)
+                    }
+                    stackVirtuals = (0 ..< stackCount).map { i in
+                        Rect(topLeftX: virtual.topLeftX + masterVirtualWidth, topLeftY: virtual.topLeftY + CGFloat(i) * stackVirtualItemHeight, width: stackVirtualWidth, height: stackVirtualItemHeight)
+                    }
+                }
+            case .v:
+                let masterHeight = (height - gapMain) * mfact
+                let stackHeight = height - masterHeight - gapMain
+                let stackItemWidth = (width - CGFloat(stackCount - 1) * gapCross) / CGFloat(stackCount)
+
+                let masterVirtualHeight = height > 0 ? virtual.height * (masterHeight / height) : virtual.height
+                let stackVirtualHeight = virtual.height - masterVirtualHeight
+                let stackVirtualItemWidth = virtual.width / CGFloat(stackCount)
+
+                masterRect = Rect(topLeftX: point.x, topLeftY: point.y, width: width, height: masterHeight)
+                masterVirtual = Rect(topLeftX: virtual.topLeftX, topLeftY: virtual.topLeftY, width: virtual.width, height: masterVirtualHeight)
+                stackRects = (0 ..< stackCount).map { i in
+                    Rect(topLeftX: point.x + CGFloat(i) * (stackItemWidth + gapCross), topLeftY: point.y + masterHeight + gapMain, width: stackItemWidth, height: stackHeight)
+                }
+                stackVirtuals = (0 ..< stackCount).map { i in
+                    Rect(topLeftX: virtual.topLeftX + CGFloat(i) * stackVirtualItemWidth, topLeftY: virtual.topLeftY + masterVirtualHeight, width: stackVirtualItemWidth, height: stackVirtualHeight)
+                }
+        }
+
+        try await children[0].layoutRecursive(masterRect.topLeftCorner, width: masterRect.width, height: masterRect.height, virtual: masterVirtual, context)
+        for i in 0 ..< stackCount {
+            try await children[i + 1].layoutRecursive(
+                stackRects[i].topLeftCorner, width: stackRects[i].width, height: stackRects[i].height,
+                virtual: stackVirtuals[i], context,
+            )
         }
     }
 
